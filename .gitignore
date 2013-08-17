@@ -1,0 +1,6 @@
+*~
+*.pyc
+build
+msg
+msg_gen
+src/pr2_delivery/msg

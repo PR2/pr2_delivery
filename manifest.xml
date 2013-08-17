@@ -1,0 +1,18 @@
+<package>
+  <description brief="Deliver a small object.">
+  This package contains scripts for making a PR2 deliver a small
+  object from one place to another, and return to a home base.
+  </description>
+  <author>Dave Hershberger</author>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/pr2_delivery</url>
+  <review status="na" notes="" />
+  <depend package="std_msgs" />
+  <depend package="geometry_msgs" />
+  <depend package="sensor_msgs" />
+  <depend package="pr2_move_base" />
+  <depend package="actionlib" />
+  <depend package="actionlib_msgs" />
+  <depend package="rospy" />
+  <depend package="tf" />
+</package>

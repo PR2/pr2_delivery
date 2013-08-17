@@ -1,0 +1,18 @@
+# action goal
+geometry_msgs/PoseStamped get_object_pose
+geometry_msgs/PoseStamped give_object_pose
+geometry_msgs/PoseStamped return_home_pose
+# TODO: need something to express the pose of the arm(s) while tucked-and-holding-object.
+---
+# action result
+
+#  the built-in success/failure results are sufficient thus far.
+---
+# action feedback
+uint8 GOING_TO_GET_OBJECT            = 0
+uint8 WAITING_FOR_OBJECT             = 1
+uint8 DELIVERING_OBJECT              = 2
+uint8 WAITING_FOR_OBJECT_TO_BE_TAKEN = 3
+uint8 GOING_HOME                     = 4
+
+uint8 current_state
