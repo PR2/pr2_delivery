@@ -109,7 +109,7 @@ class ArmMover:
         return self.right_grip(0.08)
 
     def close_right(self):
-        return self.right_grip(0, 100.0)
+        return self.right_grip(0, 200.0)
 
     def right_grip(self, position, max_effort = -1):
         goal = Pr2GripperCommandGoal()

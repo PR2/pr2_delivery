@@ -56,6 +56,10 @@ class DeliverServer:
         self.server.start()
 
     def execute(self, goal):
+        #while True:
+        #    self.arm_mover.print_arm_pose('r')
+        #    rospy.sleep(1)
+
         self.tuck_arms()
         self.navigate_to(goal.get_object_pose)
         self.say(self.READY_TO_DELIVER)
@@ -118,11 +122,11 @@ class DeliverServer:
             else:
                 rospy.loginfo("gripper does not have object: %f", gripper_pos)
 
-        # tucked-with-object approach pose for right arm
-        self.arm_mover.go('r', [-0.12051770059965083, 0.510935496099843, -1.0838730139010289, -2.1088481595621067, -1.9030174473756916, -2.0104164779006, 0.815179192304331], 2)
-        # tucked-with-object pose for right arm
-        self.arm_mover.go('r', [-0.1198544476607949, 0.6787718235390812, -1.292654997834621, -2.290535402348434, -1.9064882725927255, -2.048747836508343, 0.814700594183235], 1)
+        # tucked-with-object approach pose
+        self.arm_mover.go('r', [-0.01829384139848722, 0.6712428753827848, -1.3264898661986668, -0.6078654239376914, 0.601472182148825, -1.3278329090728338, -5.83346239703479], 2)
 
+        # tucked-with-object pose
+        self.arm_mover.go('r', [-0.018128028163773346, 1.1750902373929168, -1.3266502210250366, -1.2869848310378198, 6.576844875793923, -2.167468049154806, -5.834245557596582], 1)
         # while True:
         #     self.arm_mover.print_arm_pose('r')
         #     rospy.sleep(1)
@@ -130,13 +134,13 @@ class DeliverServer:
     def give_object(self):
         rospy.loginfo("giving object")
         # move out to tucked-with-object approach pose for right arm
-        self.arm_mover.go('r', [-0.12051770059965083, 0.510935496099843, -1.0838730139010289, -2.1088481595621067, -1.9030174473756916, -2.0104164779006, 0.815179192304331], 2)
+        self.arm_mover.go('r', [-0.01829384139848722, 0.6712428753827848, -1.3264898661986668, -0.6078654239376914, 0.601472182148825, -1.3278329090728338, -5.83346239703479], 2)
         # - move right arm to give-object pose
         self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
         # - let arm motion settle
         rospy.sleep(2) 
         # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
-        self.wait_for_gripper_wiggle(4) # m/s^2
+        self.wait_for_gripper_wiggle(5) # m/s^2
         # - open gripper
         self.arm_mover.open_right()
         rospy.sleep(1) 
