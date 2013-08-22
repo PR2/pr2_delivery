@@ -90,7 +90,7 @@ class Robot:
         client = {'l': self.left_joint_client, 'r': self.right_joint_client}[side]
         return client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
 
-    def open_right_gripper(self)
+    def open_right_gripper(self):
         goal = Pr2GripperCommandGoal()
         goal.command.position = 0.08
         goal.command.max_effort = -1
@@ -114,18 +114,3 @@ class Robot:
         goal.command.position = position
         goal.command.max_effort = max_effort
         return self.right_gripper_client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
-
-
-int main(int argc, char** argv){
-  ros::init(argc, argv, "simple_gripper");
-
-  Gripper gripper;
-
-  gripper.open();
-  sleep(2.0);
-
-  gripper.findTwoContacts();
-  gripper.hold(10.0);   // hold with 10 N of force
-
-  return 0;
-}

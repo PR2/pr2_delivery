@@ -36,7 +36,7 @@ import actionlib
 import geometry_msgs.msg
 import pr2_common_action_msgs.msg
 from pr2_delivery.msg import DeliverAction, DeliverGoal
-from ArmMover import ArmMover
+from Robot import Robot
 from pr2_gripper_sensor_msgs.msg import PR2GripperEventDetectorAction, PR2GripperEventDetectorGoal
 
 class DeliverServer:
@@ -47,7 +47,7 @@ class DeliverServer:
         self.tuck_arm_client = actionlib.SimpleActionClient("tuck_arms", pr2_common_action_msgs.msg.TuckArmsAction)
         self.gripper_wiggle_detector_client = actionlib.SimpleActionClient('r_gripper_sensor_controller/event_detector', PR2GripperEventDetectorAction)
 
-        self.arm_mover = ArmMover()
+        self.robot = Robot()
 
         self.tuck_arm_client.wait_for_server(rospy.Duration(10.0))
         self.gripper_wiggle_detector_client.wait_for_server(rospy.Duration(10.0))
@@ -83,6 +83,7 @@ class DeliverServer:
 
     def navigate_to(self, nav_goal_pose):
         rospy.loginfo("navigating")
+        rospy.sleep(3)
         # TODO
 
     def wait_for_gripper_wiggle(self):
@@ -97,25 +98,30 @@ class DeliverServer:
         rospy.loginfo("getting object")
         # TODO
         # - move right arm to accept-object pose
-        self.arm_mover.go('r', [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369], 1) # intermediate pose to avoid self-collision
-        self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
+        self.robot.move_arm_to('r', [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369], 1) # intermediate pose to avoid self-collision
+        self.robot.move_arm_to('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
 
         object_gripped = False
         while not object_gripped:
             # - open gripper all the way
-            self.arm_mover.right_grip(0.08)
+            self.robot.open_right_gripper()
             # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
             self.wait_for_gripper_wiggle()
-            # - close gripper all the way
-            self.arm_mover.right_grip(0)
-            # - if gripper closes all the way, no object is gripped
-            # - else object is gripped
+            rospy.loginfo("saw gripper wiggle")
+            # - close gripper until we grab something
+            if self.robot.grab_with_right_gripper():
+                rospy.loginfo("grab succeeded, holding.")
+                object_gripped = True
+                self.robot.hold_with_right_gripper()
+                rospy.loginfo("done holding.")
+            else:
+                rospy.loginfo("grab failed.")
 
     def give_object(self):
         rospy.loginfo("giving object")
         # TODO
         # - move right arm to give-object pose
-        self.arm_mover.go('r', [-0.4,  1.0,   0.0,  -2.05,  0.0,  -0.1,  0.0], 2)
+        self.robot.move_arm_to('r', [-0.4,  1.1,   0.0,  -2.05,  0.0,  -0.1,  0.0], 2)
         # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
         # - open gripper
 
