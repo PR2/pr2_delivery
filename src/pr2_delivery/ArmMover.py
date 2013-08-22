@@ -39,7 +39,15 @@ import rospy
 from trajectory_msgs.msg import *
 from actionlib_msgs.msg import *
 from pr2_controllers_msgs.msg import *
+from sensor_msgs.msg import JointState
 import actionlib
+
+class Joint:
+    def __init__(self, name, position, velocity, effort):
+        self.name = name
+        self.position = position
+        self.velocity = velocity
+        self.effort = effort
 
 class ArmMover:
     def __init__(self):
@@ -69,6 +77,20 @@ class ArmMover:
         if not self.right_gripper_client.wait_for_server(rospy.Duration(30)):
             rospy.logerr("ArmMover.py: right_gripper_client action server did not come up within timelimit")
 
+        self.joints = {}
+        rospy.Subscriber('/joint_states', JointState, self.joint_states_callback)
+
+    def joint_states_callback(self, msg):
+        # string[] name
+        # float64[] position
+        # float64[] velocity
+        # float64[] effort
+        i = 0
+        for name in msg.name:
+            state = Joint(name, msg.position[i], msg.velocity[i], msg.effort[i])
+            self.joints[name] = state
+            i += 1
+
     def go(self, side, joint_values, duration):
         """side is 'l' or 'r'.
            joint_values is an array of 7 joint values."""
@@ -83,9 +105,21 @@ class ArmMover:
         client = {'l': self.left_joint_client, 'r': self.right_joint_client}[side]
         return client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
 
+    def open_right(self):
+        return self.right_grip(0.08)
+
+    def close_right(self):
+        return self.right_grip(0, 100.0)
+
     def right_grip(self, position, max_effort = -1):
         goal = Pr2GripperCommandGoal()
         goal.command.position = position
         goal.command.max_effort = max_effort
         return self.right_gripper_client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
 
+    def print_arm_pose(self, which_arm):
+        joint_pose = []
+        for joint in self.joint_names:
+            full_name = which_arm + "_" + joint + "_joint"
+            joint_pose.append( self.joints[full_name].position )
+        print(which_arm, "arm pose", joint_pose)

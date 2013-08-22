@@ -83,19 +83,20 @@ class DeliverServer:
 
     def navigate_to(self, nav_goal_pose):
         rospy.loginfo("navigating")
+        rospy.sleep(3)
         # TODO
 
-    def wait_for_gripper_wiggle(self):
+    def wait_for_gripper_wiggle(self, accel):
+        """Waits for one year.  accel is in m/s^2, normal values are 6 and 10"""
         # contents of function ported from pr2_props
         goal = PR2GripperEventDetectorGoal()
         goal.command.trigger_conditions = 4 # use just acceleration as our contact signal
-        goal.command.acceleration_trigger_magnitude = 6.0 # m/^2
+        goal.command.acceleration_trigger_magnitude = accel
         goal.command.slip_trigger_magnitude = 0.008 # slip gain
-        self.gripper_wiggle_detector_client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
+        self.gripper_wiggle_detector_client.send_goal_and_wait(goal, rospy.Duration(3600*24*365), rospy.Duration(5.0))
 
     def get_object(self):
         rospy.loginfo("getting object")
-        # TODO
         # - move right arm to accept-object pose
         self.arm_mover.go('r', [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369], 1) # intermediate pose to avoid self-collision
         self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
@@ -103,21 +104,42 @@ class DeliverServer:
         object_gripped = False
         while not object_gripped:
             # - open gripper all the way
-            self.arm_mover.right_grip(0.08)
+            self.arm_mover.open_right()
+            rospy.sleep(2)
             # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
-            self.wait_for_gripper_wiggle()
+            self.wait_for_gripper_wiggle(10) # m/s^2
             # - close gripper all the way
-            self.arm_mover.right_grip(0)
+            self.arm_mover.close_right()
             # - if gripper closes all the way, no object is gripped
-            # - else object is gripped
+            gripper_pos = self.arm_mover.joints['r_gripper_joint'].position
+            if gripper_pos > 0.02:
+                rospy.loginfo("gripper has object: %f", gripper_pos)
+                object_gripped = True
+            else:
+                rospy.loginfo("gripper does not have object: %f", gripper_pos)
+
+        # tucked-with-object approach pose for right arm
+        self.arm_mover.go('r', [-0.12051770059965083, 0.510935496099843, -1.0838730139010289, -2.1088481595621067, -1.9030174473756916, -2.0104164779006, 0.815179192304331], 2)
+        # tucked-with-object pose for right arm
+        self.arm_mover.go('r', [-0.1198544476607949, 0.6787718235390812, -1.292654997834621, -2.290535402348434, -1.9064882725927255, -2.048747836508343, 0.814700594183235], 1)
+
+        # while True:
+        #     self.arm_mover.print_arm_pose('r')
+        #     rospy.sleep(1)
 
     def give_object(self):
         rospy.loginfo("giving object")
-        # TODO
+        # move out to tucked-with-object approach pose for right arm
+        self.arm_mover.go('r', [-0.12051770059965083, 0.510935496099843, -1.0838730139010289, -2.1088481595621067, -1.9030174473756916, -2.0104164779006, 0.815179192304331], 2)
         # - move right arm to give-object pose
-        self.arm_mover.go('r', [-0.4,  1.0,   0.0,  -2.05,  0.0,  -0.1,  0.0], 2)
+        self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
+        # - let arm motion settle
+        rospy.sleep(2) 
         # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
+        self.wait_for_gripper_wiggle(4) # m/s^2
         # - open gripper
+        self.arm_mover.open_right()
+        rospy.sleep(1) 
 
 # Question: what if sequence is pre-empted while robot is holding object?
 # - maybe set the object on the floor?
