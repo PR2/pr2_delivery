@@ -7,4 +7,7 @@
 
   <!-- Action server for sensing motion of the grippers during pickup and dropoff. -->
   <include file="$(find pr2_gripper_sensor_action)/launch/pr2_gripper_sensor_actions.launch" />
+
+  <!-- Navigation -->
+  <include file="$(find pr2_2dnav)/pr2_2dnav.launch" />
 </launch>

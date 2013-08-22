@@ -38,6 +38,7 @@ import pr2_common_action_msgs.msg
 from pr2_delivery.msg import DeliverAction, DeliverGoal
 from ArmMover import ArmMover
 from pr2_gripper_sensor_msgs.msg import PR2GripperEventDetectorAction, PR2GripperEventDetectorGoal
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 class DeliverServer:
 
@@ -47,10 +48,13 @@ class DeliverServer:
         self.tuck_arm_client = actionlib.SimpleActionClient("tuck_arms", pr2_common_action_msgs.msg.TuckArmsAction)
         self.gripper_wiggle_detector_client = actionlib.SimpleActionClient('r_gripper_sensor_controller/event_detector', PR2GripperEventDetectorAction)
 
+        self.move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+
         self.arm_mover = ArmMover()
 
         self.tuck_arm_client.wait_for_server(rospy.Duration(10.0))
         self.gripper_wiggle_detector_client.wait_for_server(rospy.Duration(10.0))
+        self.move_base_client.wait_for_server(rospy.Duration(10.0))
 
         self.server = actionlib.SimpleActionServer('deliver', DeliverAction, self.execute, False)
         self.server.start()
@@ -87,8 +91,9 @@ class DeliverServer:
 
     def navigate_to(self, nav_goal_pose):
         rospy.loginfo("navigating")
-        rospy.sleep(3)
-        # TODO
+        goal = MoveBaseGoal()
+        goal.target_pose = nav_goal_pose
+        self.move_base_client.send_goal_and_wait(goal, rospy.Duration(60*5), rospy.Duration(5))
 
     def wait_for_gripper_wiggle(self, accel):
         """Waits for one year.  accel is in m/s^2, normal values are 6 and 10"""

@@ -1,0 +1,8 @@
+<launch>
+  <!-- main delivery launch -->
+  <include file="$(find pr2_delivery)/launch/deliver_server.launch" />
+
+  <!-- load the map -->
+  <node name="map_server" pkg="map_server" type="map_server"
+  	args="$(find willow_maps)/willow-full-0.05.pgm 0.05" />
+</launch>
