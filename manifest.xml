@@ -15,4 +15,8 @@
   <depend package="actionlib_msgs" />
   <depend package="rospy" />
   <depend package="tf" />
+
+  <depend package="pr2_tuck_arms_action" />
+  <depend package="pr2_gripper_sensor_msgs" />
+  <depend package="pr2_gripper_sensor_action" />
 </package>

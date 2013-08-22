@@ -17,6 +17,6 @@ if __name__ == '__main__':
     # Fill in goal here.
     rospy.loginfo("sending goal.")
     client.send_goal(goal)
-    client.wait_for_result(rospy.Duration.from_sec(5.0))
+    client.wait_for_result(rospy.Duration.from_sec(50.0))
     rospy.loginfo("got action finished.")
-    rospy.sleep(0.5)
+    rospy.sleep(50)

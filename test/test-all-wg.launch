@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find pr2_delivery)/launch/deliver_server.launch" />
+  <node name="test_client" pkg="pr2_delivery" type="test.py" output="screen" />
+</launch>

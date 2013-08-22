@@ -1,0 +1,10 @@
+<launch>
+  <!-- Delivery action-sequence script -->
+  <node name="deliver_server" pkg="pr2_delivery" type="deliver" output="screen" />
+
+  <!-- Action server for tucking arms the normal way. -->
+  <node pkg="pr2_tuckarm" type="tuck_arms.py" name="tuck_arms_app" />
+
+  <!-- Action server for sensing motion of the grippers during pickup and dropoff. -->
+  <include file="$(find pr2_gripper_sensor_action)/launch/pr2_gripper_sensor_actions.launch" />
+</launch>
