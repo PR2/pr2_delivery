@@ -111,3 +111,8 @@ gripper and drop the object on the floor.
 The solution (that I know of) is to re-launch the deliver action
 server.  It hasn't happened twice in a row, so this is all I've done
 to solve it so far.
+
+### Joystick Teleop Broken ###
+
+I haven't looked into this, but joystick teleop seems to not work when
+this is running.  Maybe a mux issue?
