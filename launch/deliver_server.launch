@@ -9,5 +9,5 @@
   <include file="$(find pr2_gripper_sensor_action)/launch/pr2_gripper_sensor_actions.launch" />
 
   <!-- Navigation -->
-  <include file="$(find pr2_2dnav)/pr2_2dnav.launch" />
+  <include file="$(find pr2_delivery)/launch/pr2_delivery_nav/nav.launch" />
 </launch>

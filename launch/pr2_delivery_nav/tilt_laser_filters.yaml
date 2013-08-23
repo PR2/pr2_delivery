@@ -1,0 +1,58 @@
+# This file is a copy of pr2_navigation_perception/config/tilt_laser_filters.yaml
+# with changes in the last section (downscan_filter) to support delivery.
+scan_filter_chain:
+- name: shadows
+  type: ScanShadowsFilter
+  params:
+    min_angle: 10
+    max_angle: 170
+    neighbors: 20
+    window: 1
+- name: dark_shadows
+  type: LaserScanIntensityFilter
+  params: 
+    lower_threshold: 100
+    upper_threshold: 10000
+    disp_histogram: 0
+- name: angular_bounds
+  type: LaserScanAngularBoundsFilter
+  params:
+    lower_angle: -1.22173048
+    upper_angle: 1.22173048
+- name: downscan_filter
+  type: laser_tilt_controller_filter/LaserTiltControllerFilter
+  params:
+    # this defines the timing of the sections.  Between the first two times is section 0.
+    tilt_profile_times: [0.0, 0.1, 1.75, 2.3125]
+    #                      \ /   \ /   \ /
+    #           sections:   0     1     2
+
+    # these are the sections to DISCARD
+    filter_sections: [0, 2]
+
+    # So we are only using sensor data between time 0.1 and 1.75 seconds (section 1)
+
+    # Around time 0 the tilter is at the bottom of its range, and around time
+    # 1.8 it is at the top.  The bottom-to-top sweep is when it goes slow and
+    # gets good data.  On the top-to-bottom return sweep it goes fast and the
+    # data is unreliable.
+    #
+    # The object being carried gets in the way of the laser around time 0.0.
+    # I first thought that would be fine since the 3D points should be inside
+    # the footprint of the robot and thus cleared by the costmap.  However,
+    # there is a problem similar to "veiling" from one scan line to the next
+    # where the first scan line or two which should just sense the floor get
+    # smeared up towards the top of the object being carried.  This makes it
+    # appear that there are obstacles about 30cm in front of the robot all the
+    # time.  This filter config works around this by ignoring the first 0.1
+    # seconds of the laser's up-sweep.
+    #
+    # If the object being carried is too big and gets in the way of
+    # the laser anyway, you may need to increase the second number (currently
+    # 0.1).  The units are *seconds* (time) not radians, for what its worth.
+    #
+    # (Originally I tried removing the 0.0 time at the beginning as a simpler
+    # way to do this, but the code did not work right with that.  Similarly
+    # changing the end time (2.3125) causes trouble also.)
+    #
+    # -hersh

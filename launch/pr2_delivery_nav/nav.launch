@@ -1,0 +1,12 @@
+<!-- This is a copy of pr2_2dnav/pr2_2dnav.launch with one change for delivery. -->
+<launch>
+  <include file="$(find pr2_machine)/$(env ROBOT).machine" />
+  <include file="$(find pr2_navigation_global)/amcl_node.xml" />
+  <include file="$(find pr2_navigation_teleop)/teleop.xml" />
+
+  <!-- HERE IS THE CHANGE FOR DELIVERY: -->
+  <include file="$(find pr2_delivery)/launch/pr2_delivery_nav/lasers_and_filters.xml" />
+
+  <include file="$(find pr2_navigation_perception)/ground_plane.xml" />
+  <include file="$(find pr2_navigation_global)/move_base.xml" />
+</launch>
