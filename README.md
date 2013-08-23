@@ -1,5 +1,4 @@
-pr2_delivery
-------------
+# pr2_delivery #
 
 This is a quick package put together to demonstrate a simple delivery task with the PR2.
 
@@ -22,8 +21,7 @@ One run through the action does:
 
 This sequence is defined in src/pr2_delivery/DeliverServer.py.
 
-Programs
-==============
+## Programs ##
 
  * **scripts/deliver**: Runs the DeliverServer action server.
 
@@ -35,8 +33,7 @@ Programs
 
  * **test/watch_robot_base_pose.sh**: repeatedly prints the pose of the robot base.  This can be convenient for recording new poses for get-object, give-object, and home.
 
-Launch files
-============
+## Launch files ##
 
  * **launch/deliver_server.launch**: runs scripts/deliver and a bunch of support nodes which it depends on.
    * Does *not* run map_server.
@@ -44,24 +41,22 @@ Launch files
  * **launch/deliver_server_wg.launch**: runs deliver_server.launch and map_server with a map of Willow Garage.
    * *This is a file you will need to copy and modify for use in a new place.*
 
-Instructions for use
-====================
+## Instructions for use ##
 
-Initial Setup
-+++++++++++++
+### Initial Setup ###
+
  * Map the environment
  * Copy launch/deliver_server_wg.launch to launch/deliver_server_location_name.launch and fill in the map info for the map you just made.
  * Record poses of the robot base to use for home, get-object, and give-object using test/watch_robot_base_pose.sh and either navigation using rviz or joystick teleop.
  * Copy test/test.py into scripts/do-one-delivery.py or similar and copy the base-pose info into it (x, y, yaw).
 
-Starting the Action Server
-++++++++++++++++++++++
+### Starting the Action Server ###
+
  * roslaunch /etc/ros/robot.launch # to bring up the robot
  * roslaunch pr2_delivery deliver_server_location_name.launch
  * *Robot should not immediately do anything*
 
-Making a Delivery
-+++++++++++++++++
+### Making a Delivery ###
 
  * rosrun pr2_delivery scripts/do-one-delivery.py
  * *Robot will tuck arms and navigate to get-object location.*
