@@ -44,6 +44,11 @@ class DeliverServer:
 
     (READY_TO_DELIVER, OBJECT_ACQUIRED, DELIVERY_ARRIVED, OBJECT_GIVEN) = (0, 1, 2, 3)
 
+    tucked_with_object_pose = [-0.0175476818422744, 1.1720448201611564, -1.3268105758514066, -1.288722079574422, -31.28968470078213, -2.0089650532319836, -5.841424529413016]
+    tuck_approach_pose = [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369]
+    accept_object_pose = [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617]
+    tucked_with_object_approach_pose = [-0.01829384139848722, 0.6712428753827848, -1.3264898661986668, -0.6078654239376914, 0.601472182148825, -1.3278329090728338, -5.83346239703479]
+
     def __init__(self):
         self.tuck_arm_client = actionlib.SimpleActionClient("tuck_arms", pr2_common_action_msgs.msg.TuckArmsAction)
         self.gripper_wiggle_detector_client = actionlib.SimpleActionClient('r_gripper_sensor_controller/event_detector', PR2GripperEventDetectorAction)
@@ -60,10 +65,7 @@ class DeliverServer:
         self.server.start()
 
     def execute(self, goal):
-        #while True:
-        #    self.arm_mover.print_arm_pose('r')
-        #    rospy.sleep(1)
-
+        """This is the main sequence of the delivery action."""
         self.tuck_arms()
         self.navigate_to(goal.get_object_pose)
         self.say(self.READY_TO_DELIVER)
@@ -107,8 +109,8 @@ class DeliverServer:
     def get_object(self):
         rospy.loginfo("getting object")
         # - move right arm to accept-object pose
-        self.arm_mover.go('r', [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369], 1) # intermediate pose to avoid self-collision
-        self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
+        self.arm_mover.go('r', self.tuck_approach_pose, 1)
+        self.arm_mover.go('r', self.accept_object_pose, 2)
 
         object_gripped = False
         while not object_gripped:
@@ -127,21 +129,15 @@ class DeliverServer:
             else:
                 rospy.loginfo("gripper does not have object: %f", gripper_pos)
 
-        # tucked-with-object approach pose
-        self.arm_mover.go('r', [-0.01829384139848722, 0.6712428753827848, -1.3264898661986668, -0.6078654239376914, 0.601472182148825, -1.3278329090728338, -5.83346239703479], 2)
-
-        # tucked-with-object pose
-        self.arm_mover.go('r', [-0.018128028163773346, 1.1750902373929168, -1.3266502210250366, -1.2869848310378198, 6.576844875793923, -2.167468049154806, -5.834245557596582], 1)
-        # while True:
-        #     self.arm_mover.print_arm_pose('r')
-        #     rospy.sleep(1)
+        self.arm_mover.go('r', self.tucked_with_object_approach_pose, 2)
+        self.arm_mover.go('r', self.tucked_with_object_pose, 1)
 
     def give_object(self):
         rospy.loginfo("giving object")
         # move out to tucked-with-object approach pose for right arm
-        self.arm_mover.go('r', [-0.01829384139848722, 0.6712428753827848, -1.3264898661986668, -0.6078654239376914, 0.601472182148825, -1.3278329090728338, -5.83346239703479], 2)
+        self.arm_mover.go('r', self.tucked_with_object_approach_pose, 2)
         # - move right arm to give-object pose
-        self.arm_mover.go('r', [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617], 2)
+        self.arm_mover.go('r', self.accept_object_pose, 2) # give-object pose is the same as accept-object pose.
         # - let arm motion settle
         rospy.sleep(2) 
         # - wait for externally-applied hand motion detected (ala "fist-pump" demo)
