@@ -30,7 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib; roslib.load_manifest('pr2_delivery')
+PACKAGE='pr2_delivery'
+
+import roslib; roslib.load_manifest(PACKAGE)
+import os
 import rospy
 import actionlib
 import geometry_msgs.msg
@@ -54,6 +57,17 @@ class DeliverServer:
         self.gripper_wiggle_detector_client = actionlib.SimpleActionClient('r_gripper_sensor_controller/event_detector', PR2GripperEventDetectorAction)
 
         self.move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+
+	# Load phrases
+        self.lang = rospy.get_param('lang', 'en')
+	basedir = roslib.packages.get_pkg_dir(PACKAGE)
+	self.phrases = {
+            self.READY_TO_DELIVER: 'Please give me the delivery',
+            self.OBJECT_ACQUIRED:  'Thank you, I wil deliver this',
+            self.DELIVERY_ARRIVED: 'I have a delivery for you',
+            self.OBJECT_GIVEN:     'Thank you, have a nice day'
+        }
+	# TODO: load phrase overrides from file
 
         self.arm_mover = ArmMover()
 
@@ -82,7 +96,9 @@ class DeliverServer:
 
     def say(self, thing_to_say_code):
         rospy.loginfo("saying %d" % thing_to_say_code)
-        # TODO eventually: say something
+        # say something
+        speed = 130
+        os.system("espeak -v %s -s %d \"%s\""%(self.lang, speed, self.phrases[thing_to_say_code]))
 
     def tuck_arms(self):
         rospy.loginfo("tucking arms")
