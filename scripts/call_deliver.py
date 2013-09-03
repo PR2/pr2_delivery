@@ -37,12 +37,13 @@ if __name__ == '__main__':
     client.wait_for_server()
 
     data_dir = rospy.get_param("~data_dir")
+    rospy.loginfo("Using %s as data directory"%(data_dir))
 
     goal = DeliverGoal()
     # Fill in goal here.
     goal.get_object_pose = pose_from_yaml(os.path.join(data_dir,'get_object_pose.yaml'))
-    goal.give_object_pose = pose_from_yaml(os.path.join(data_dir,'/give_object_pose.yaml'))
-    goal.return_home_pose = pose_from_yaml(os.path.join(data_dir,'/return_home_pose.yaml'))
+    goal.give_object_pose = pose_from_yaml(os.path.join(data_dir,'give_object_pose.yaml'))
+    goal.return_home_pose = pose_from_yaml(os.path.join(data_dir,'return_home_pose.yaml'))
 
     rospy.loginfo("sending goal.")
     client.send_goal(goal)
