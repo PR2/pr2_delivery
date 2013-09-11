@@ -45,8 +45,6 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 class DeliverServer:
 
-    (READY_TO_DELIVER, OBJECT_ACQUIRED, DELIVERY_ARRIVED, OBJECT_GIVEN) = (0, 1, 2, 3)
-
     tucked_with_object_pose = [-0.0175476818422744, 1.1720448201611564, -1.3268105758514066, -1.288722079574422, -31.28968470078213, -2.0089650532319836, -5.841424529413016]
     tuck_approach_pose = [0.039, 1.1072, 0.0, -2.067, -1.231, -1.998, 0.369]
     accept_object_pose = [ -0.07666010001780543,   0.1622352230632809,   -0.31320771836735584,   -1.374860652847621,   -3.1324415863359545,   -1.078194355846691,   1.857217828689617]
@@ -58,17 +56,14 @@ class DeliverServer:
 
         self.move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
-	# Load phrases
+        # Load phrases
         self.lang = rospy.get_param('lang', 'en')
-	basedir = roslib.packages.get_pkg_dir(PACKAGE)
-	self.phrases = {
-            self.READY_TO_DELIVER: 'Please give me the delivery',
-            self.OBJECT_ACQUIRED:  'Thank you, I wil deliver this',
-            self.DELIVERY_ARRIVED: 'I have a delivery for you',
-            self.OBJECT_GIVEN:     'Thank you, have a nice day'
-        }
-	# TODO: load phrase overrides from file
-
+        
+        self.request_item_phrase = rospy.get_param('request_item_phrase', 'Please give me the delivery.')
+        self.item_received_phrase = rospy.get_param('item_received_phrase', 'Thank you. I wil deliver this.')
+        self.give_item_phrase = rospy.get_param('give_item_phrase', 'I haave a delivery for you.')
+        self.item_delivered_phrase = rospy.get_param('item_delivered_phrase', 'Thank you. Have a nice day.')
+    
         self.arm_mover = ArmMover()
 
         self.tuck_arm_client.wait_for_server(rospy.Duration(10.0))
@@ -82,23 +77,23 @@ class DeliverServer:
         """This is the main sequence of the delivery action."""
         self.tuck_arms()
         self.navigate_to(goal.get_object_pose)
-        self.say(self.READY_TO_DELIVER)
+        self.say(self.request_item_phrase)
         self.get_object()
-        self.say(self.OBJECT_ACQUIRED)
+        self.say(self.item_received_phrase)
         self.navigate_to(goal.give_object_pose)
-        self.say(self.DELIVERY_ARRIVED)
+        self.say(self.give_item_phrase)
         self.give_object()
-        self.say(self.OBJECT_GIVEN)
+        self.say(self.item_delivered_phrase)
         self.tuck_arms()
         self.navigate_to(goal.return_home_pose)
 
         self.server.set_succeeded()
 
-    def say(self, thing_to_say_code):
-        rospy.loginfo("saying %d" % thing_to_say_code)
+    def say(self, thing_to_say):
+        rospy.loginfo("saying '%d'" % thing_to_say)
         # say something
         speed = 130
-        os.system("espeak -v %s -s %d \"%s\""%(self.lang, speed, self.phrases[thing_to_say_code]))
+        os.system("espeak -v %s -s %d \"%s\"" % (self.lang, speed, thing_to_say))
 
     def tuck_arms(self):
         rospy.loginfo("tucking arms")
