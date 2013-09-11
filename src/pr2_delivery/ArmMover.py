@@ -66,8 +66,10 @@ class ArmMover:
         self.right_joint_client = actionlib.SimpleActionClient(self.r_action_name, JointTrajectoryAction)
 
         # Wait for joint clients to connect with timeout
+        rospy.loginfo("Waiting for " + self.l_action_name)
         if not self.left_joint_client.wait_for_server(rospy.Duration(30)):
             rospy.logerr("ArmMover.py: left_joint_client action server did not come up within timelimit")
+        rospy.loginfo("Waiting for " + self.r_action_name)
         if not self.right_joint_client.wait_for_server(rospy.Duration(30)):
             rospy.logerr("ArmMover.py: right_joint_client action server did not come up within timelimit")
 

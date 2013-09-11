@@ -33,7 +33,7 @@
 PACKAGE='pr2_delivery'
 
 import roslib; roslib.load_manifest(PACKAGE)
-import os
+import subprocess
 import rospy
 import actionlib
 import geometry_msgs.msg
@@ -53,25 +53,29 @@ class DeliverServer:
     def __init__(self):
         self.tuck_arm_client = actionlib.SimpleActionClient("tuck_arms", pr2_common_action_msgs.msg.TuckArmsAction)
         self.gripper_wiggle_detector_client = actionlib.SimpleActionClient('r_gripper_sensor_controller/event_detector', PR2GripperEventDetectorAction)
-
         self.move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
         # Load phrases
-        self.lang = rospy.get_param('lang', 'en')
+        self.lang = rospy.get_param('~lang', 'en')
         
-        self.request_item_phrase = rospy.get_param('request_item_phrase', 'Please give me the delivery.')
-        self.item_received_phrase = rospy.get_param('item_received_phrase', 'Thank you. I wil deliver this.')
-        self.give_item_phrase = rospy.get_param('give_item_phrase', 'I haave a delivery for you.')
-        self.item_delivered_phrase = rospy.get_param('item_delivered_phrase', 'Thank you. Have a nice day.')
-    
+        self.request_item_phrase = rospy.get_param('~request_item_phrase', 'Please give me the delivery.')
+        self.item_received_phrase = rospy.get_param('~item_received_phrase', 'Thank you. I will deliver this.')
+        self.give_item_phrase = rospy.get_param('~give_item_phrase', 'I have a delivery for you.')
+        self.item_delivered_phrase = rospy.get_param('~item_delivered_phrase', 'Thank you. Have a nice day.')
+
         self.arm_mover = ArmMover()
 
+        rospy.loginfo("Waiting for tuck_arms action server")
         self.tuck_arm_client.wait_for_server(rospy.Duration(10.0))
+        rospy.loginfo("Waiting for wiggle_detector action server")
         self.gripper_wiggle_detector_client.wait_for_server(rospy.Duration(10.0))
+        rospy.loginfo("Waiting for move_base action server")
         self.move_base_client.wait_for_server(rospy.Duration(10.0))
 
         self.server = actionlib.SimpleActionServer('deliver', DeliverAction, self.execute, False)
         self.server.start()
+        
+        rospy.loginfo("Ready")
 
     def execute(self, goal):
         """This is the main sequence of the delivery action."""
@@ -90,10 +94,13 @@ class DeliverServer:
         self.server.set_succeeded()
 
     def say(self, thing_to_say):
-        rospy.loginfo("saying '%d'" % thing_to_say)
+        rospy.loginfo("saying '%s'" % thing_to_say)
         # say something
         speed = 130
-        os.system("espeak -v %s -s %d \"%s\"" % (self.lang, speed, thing_to_say))
+        subprocess.call([ 'espeak', 
+                        "-v", self.lang,
+                        "-s", "%d"%speed,
+                        thing_to_say ])
 
     def tuck_arms(self):
         rospy.loginfo("tucking arms")
