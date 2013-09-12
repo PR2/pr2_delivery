@@ -110,10 +110,10 @@ class DeliverServer:
         self.tuck_arm_client.send_goal_and_wait(goal, rospy.Duration(30.0), rospy.Duration(5.0))
 
     def navigate_to(self, nav_goal_pose):
-        rospy.loginfo("navigating" )
+        rospy.loginfo("navigating to %f %f" % (nav_goal_pose.pose.position.x, 
+                      nav_goal_pose.pose.position.y))
         goal = MoveBaseGoal()
         goal.target_pose = nav_goal_pose
-        self.move_base_client.cancel_all_goals()
         self.move_base_client.send_goal_and_wait(goal, rospy.Duration(60*5), rospy.Duration(5))
 
     def wait_for_gripper_wiggle(self, accel):
