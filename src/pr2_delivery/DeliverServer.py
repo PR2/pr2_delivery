@@ -94,7 +94,7 @@ class DeliverServer:
         self.server.set_succeeded()
 
     def say(self, thing_to_say):
-        rospy.loginfo("saying '%s'" % thing_to_say)
+        #rospy.loginfo("saying '%s'" % thing_to_say)
         # say something
         speed = 130
         subprocess.call([ 'espeak', 
