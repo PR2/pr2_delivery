@@ -3,7 +3,7 @@
   This package contains scripts for making a PR2 deliver a small
   object from one place to another, and return to a home base.
   </description>
-  <author>Dave Hershberger</author>
+  <author>Dave Hershberger, Maintainer=Devon Ash</author>
   <license>BSD</license>
   <url>http://ros.org/wiki/pr2_delivery</url>
   <review status="na" notes="" />
