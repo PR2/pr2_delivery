@@ -14,9 +14,9 @@ find_package(catkin REQUIRED COMPONENTS std_msgs geometry_msgs sensor_msgs pr2_m
 # include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 #generate the actions
-rosbuild_find_ros_package(actionlib_msgs)
-include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
-genaction()
+#rosbuild_find_ros_package(actionlib_msgs)
+#include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
+#genaction()
 
 
 # CATKIN_MIGRATION: removed during catkin migration
@@ -27,14 +27,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-add_message_files(
-  FILES
-  # TODO: List your msg files here
-)
-add_service_files(
-  FILES
-  # TODO: List your msg files here
-)
 ## Generate added messages and services with any dependencies listed here
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
