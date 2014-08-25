@@ -1,6 +1,6 @@
 <package>
   <name>pr2_delivery</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>This package contains scripts for making a PR2 deliver a small
   object from one place to another, and return to a home base.</description>
   <maintainer email="dash@clearpathrobotics.com">Maintainer=Devon Ash</maintainer>
