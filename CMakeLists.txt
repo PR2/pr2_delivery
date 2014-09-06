@@ -38,3 +38,7 @@ catkin_package(
     LIBRARIES # TODO
 )
 
+install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/)
+
+install(PROGRAMS scripts/deliver scripts/call_deliver.py scripts/print_right_arm_pose DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
